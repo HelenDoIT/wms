@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.wms.mapper.SupplierMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.wms.domain.Supplier" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <resultMap id="SimpleResultMap" type="com._520it.wms.domain.Supplier" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from `supplier`
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com._520it.wms.domain.Supplier" useGeneratedKeys="true" keyProperty="id" >
+    insert into `supplier` (name, phone, address
+      )
+    values (#{name,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.wms.domain.Supplier" >
+    update `supplier`
+    set name = #{name,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, name, phone, address
+    from `supplier`
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, name, phone, address
+    from `supplier`
+  </select>
+
+  <sql id="base_where">
+    <where>
+    </where>
+  </sql>
+  <select id="queryForCount" resultType="int">
+    select COUNT(id) from supplier
+  </select>
+  <select id="queryForList" resultMap="BaseResultMap">
+    SELECT id, name, phone, address FROM supplier
+    <include refid="base_where"/>
+    limit #{start},#{pageSize}
+  </select>
+</mapper>

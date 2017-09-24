@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.wms.mapper.SystemMenuMapper" >
+
+    <resultMap id="BaseResultMap" type="com._520it.wms.domain.SystemMenu" >
+      <id column="id" property="id" jdbcType="BIGINT" />
+      <result column="name" property="name" jdbcType="VARCHAR" />
+      <result column="url" property="url" jdbcType="VARCHAR" />
+      <result column="sn" property="sn" jdbcType="VARCHAR" />
+      <association property="parent" column="id" javaType="SystemMenu" columnPrefix="p_">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+      </association>
+    </resultMap>
+
+  <select id="queryMenuByParentSn" resultType="hashmap">
+      SELECT id,parent_id pId,url action,name FROM systemmenu WHERE parent_id in
+      (SELECT id FROM systemmenu WHERE sn=#{parentSn})
+  </select>
+
+  <select id="queryMenuByParentSnAndEmpId" resultType="hashmap">
+    SELECT id,parent_id pId,url action,name
+    FROM systemmenu WHERE parent_id =
+    (SELECT id FROM systemmenu WHERE sn=#{parentSn})
+    AND id in
+    (SELECT DISTINCT menu_id FROM role_menu WHERE role_id in
+    (SELECT role_id FROM employee_role WHERE employee_id = #{empId}))
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from `systemmenu`
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com._520it.wms.domain.SystemMenu" useGeneratedKeys="true" keyProperty="id" >
+    insert into `systemmenu` (name, url, sn, 
+      parent_id)
+    values (#{name,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{sn,jdbcType=VARCHAR}, 
+      #{parent.id,jdbcType=BIGINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.wms.domain.SystemMenu" >
+    update `systemmenu`
+    set name = #{name,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      sn = #{sn,jdbcType=VARCHAR},
+      parent_id = #{parent.id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select m.id, m.name, m.url, m.sn, m.parent_id p_id,p.name p_name
+    from `systemmenu` m left join systemmenu p on m.parent_id=p.id
+    where m.id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, name, url, sn, parent_id
+    from `systemmenu`
+  </select>
+  <select id="listAll" resultType="SystemMenu" >
+    select id, name
+    from `systemmenu`
+  </select>
+
+  <select id="listChildMenu" resultType="SystemMenu" >
+    select id, name
+    from `systemmenu` WHERE parent_id is not NULL
+  </select>
+
+  <select id="selectByRoleId" resultType="SystemMenu">
+    SELECT * FROM systemmenu WHERE id in(
+		SELECT menu_id FROM role_menu WHERE role_id = #{roleId}
+		)
+  </select>
+
+
+  <!--分页查询-->
+  <select id="queryForCount" resultType="int">
+    SELECT count(m.id) FROM systemmenu m
+    <include refid="base_where"/>
+  </select>
+  <!--记得配结果集映射-->
+  <select id="queryForList" resultMap="BaseResultMap">
+    SELECT m.id, m.name, m.url, m.sn, m.parent_id p_id,p.name p_name
+    FROM systemmenu m left join systemmenu p on m.parent_id = p.id
+    <include refid="base_where"/>
+    limit #{start},#{pageSize}
+  </select>
+
+  <sql id="base_where">
+    <where>
+      <choose>
+        <when test="parentId==null">
+          and m.parent_id is null
+        </when>
+        <otherwise>
+          and m.parent_id = #{parentId}
+        </otherwise>
+      </choose>
+    </where>
+  </sql>
+
+</mapper>

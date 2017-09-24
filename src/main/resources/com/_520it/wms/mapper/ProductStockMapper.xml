@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.wms.mapper.ProductStockMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.wms.domain.ProductStock" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="storeNumber" property="storeNumber" jdbcType="DECIMAL" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="incomeDate" property="incomeDate" jdbcType="TIMESTAMP" />
+    <result column="outcomeDate" property="outcomeDate" jdbcType="TIMESTAMP" />
+            
+    <!--<association property="product" resultMap="com._520it.wms.mapper.ProductMapper.SimpleResultMap"/>-->
+    <association property="product" javaType="Product" column="id">
+      <result column="p_sn" property="sn"/>
+      <result column="p_name" property="name"/>
+      <result column="b_id" property="brand.id"/>
+      <result column="b_name" property="brand.name"/>
+    </association>
+    <association property="depot" columnPrefix="d_" resultMap="com._520it.wms.mapper.DepotMapper.SimpleResultMap"/>
+  </resultMap>
+  
+  <insert id="insert" parameterType="com._520it.wms.domain.ProductStock" useGeneratedKeys="true" keyProperty="id" >
+    insert into `productstock` (price, storeNumber, amount, 
+      incomeDate, outcomeDate, product_id, 
+      depot_id)
+    values (#{price,jdbcType=DECIMAL}, #{storeNumber,jdbcType=DECIMAL}, #{amount,jdbcType=DECIMAL}, 
+      #{incomeDate,jdbcType=TIMESTAMP}, #{outcomeDate,jdbcType=TIMESTAMP}, #{product.id,jdbcType=BIGINT},
+      #{depot.id,jdbcType=BIGINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.wms.domain.ProductStock" >
+    update `productstock`
+    set price = #{price,jdbcType=DECIMAL},
+      storeNumber = #{storeNumber,jdbcType=DECIMAL},
+      amount = #{amount,jdbcType=DECIMAL},
+      incomeDate = #{incomeDate,jdbcType=TIMESTAMP},
+      outcomeDate = #{outcomeDate,jdbcType=TIMESTAMP},
+      product_id = #{product.id,jdbcType=BIGINT},
+      depot_id = #{depot.id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <sql id="base_select">
+    stock.id,stock.price,stock.storeNumber,stock.amount,
+    p.sn p_sn,p.name p_name,
+    d.id d_id,d.name d_name,
+    b.id b_id,b.name b_name
+  </sql>
+
+  <sql id="base_from">
+    productstock stock
+    JOIN product p on stock.product_id = p.id
+    JOIN depot d on stock.depot_id = d.id
+    JOIN brand b on p.brand_id = b.id
+  </sql>
+  <sql id="base_where">
+    <where>
+      <if test="depotId > 0">
+          d.id = #{depotId}
+      </if>
+      <if test="brandId > 0">
+        and p.brand_id = #{brandId}
+      </if>
+      <if test="limitNumber > 0">
+        and stock.storeNumber &lt;= #{limitNumber}
+      </if>
+      <if test="keyword != null and keyword !='' ">
+       and ( p.sn like '%' #{keyword} '%' or p.name like '%' #{keyword} '%')
+      </if>
+    </where>
+  </sql>
+
+  <select id="selectByProductIdAndDepotId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select stock.id, stock.price, stock.storeNumber, stock.amount, stock.incomeDate, stock.outcomeDate, stock.product_id, stock.depot_id,
+    p.id p_id, p.name p_name,
+    d.id d_id, d.name d_name
+    from `productstock` stock
+    join product p on stock.product_id = p.id
+    join depot d on stock.depot_id =d.id
+    where stock.product_id = #{proId}
+    and stock.depot_id = #{depotId}
+  </select>
+
+  <select id="queryForCount" resultType="int">
+    SELECT COUNT(stock.id) FROM <include refid="base_from"/>
+    <include refid="base_where"/>
+  </select>
+
+  <select id="queryForList" resultMap="BaseResultMap">
+    SELECT <include refid="base_select"/>
+    FROM <include refid="base_from"/>
+    <include refid="base_where"/>
+   limit #{start},#{pageSize}
+  </select>
+</mapper>

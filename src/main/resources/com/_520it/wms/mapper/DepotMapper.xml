@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.wms.mapper.DepotMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.wms.domain.Depot" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="location" property="location" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <resultMap id="SimpleResultMap" type="com._520it.wms.domain.Depot" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+  </resultMap>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from `depot`
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com._520it.wms.domain.Depot" useGeneratedKeys="true" keyProperty="id" >
+    insert into `depot` (location, name)
+    values (#{location,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.wms.domain.Depot" >
+    update `depot`
+    set location = #{location,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, location, name
+    from `depot`
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, location, name
+    from `depot`
+  </select>
+
+  <sql id="base_where">
+    <where>
+    </where>
+  </sql>
+  <select id="queryForCount" resultType="int">
+    select COUNT(id) from depot
+  </select>
+  <select id="queryForList" resultMap="BaseResultMap">
+    SELECT id, location, name FROM depot
+    <if test="pageSize > 0">
+      limit #{start},#{pageSize}
+    </if>
+  </select>
+
+</mapper>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.wms.mapper.ChartMapper" >
+
+  <select id="orderChart" resultType="hashmap">
+    SELECT ${groupType} groupType,
+		SUM(item.number) number,
+		SUM(item.amount) amount
+    FROM orderbillitem item
+    JOIN orderbill bill on item.bill_id = bill.id
+    JOIN employee iu on bill.inputUser_id = iu.id
+    JOIN product p on item.product_id = p.id
+    JOIN supplier s on bill.supplier_id = s.id
+    JOIN brand b on p.brand_id = b.id
+    <include refid="base_where"/>
+    GROUP BY ${groupType}
+  </select>
+
+  <sql id="base_where">
+    <where>
+      bill.status = 1
+      <if test="beginDate != null">
+       and bill.vdate >= #{beginDate}
+      </if>
+      <if test="endDate != null">
+        and bill.vdate &lt;= #{endDate}
+      </if>
+      <if test="keyword != null and keyword !=''">
+        and (p.sn like '%'#{keyword}'%' or p.name like '%'#{keyword}'%')
+      </if>
+      <if test="supplierId >0">
+        and bill.supplier_id = #{supplierId}
+      </if>
+      <if test="brandId >0">
+        and p.brand_id = #{brandId}
+      </if>
+    </where>
+  </sql>
+
+  <select id="saleChart" resultType="hashmap">
+    SELECT ${groupType} groupType,
+    SUM(sa.number) number,
+    SUM(sa.saleAmount) amount,
+    SUM(sa.saleAmount - sa.costAmount) grossProfit
+    FROM saleaccount sa
+    JOIN employee sm on sm.id = sa.saleman_id
+    JOIN product p on p.id = sa.product_id
+    JOIN client c on c.id  = sa.client_id
+    JOIN brand b on b.id = p.brand_id
+    <include refid="base_char_where"/>
+    GROUP BY ${groupType}
+  </select>
+
+  <sql id="base_char_where">
+    <where>
+      <if test="beginDate != null">
+        and sa.vdate >= #{beginDate}
+      </if>
+      <if test="endDate != null">
+        and sa.vdate &lt;= #{endDate}
+      </if>
+      <if test="keyword != null and keyword !=''">
+        and (p.sn like '%'#{keyword}'%' or p.name like '%'#{keyword}'%')
+      </if>
+      <if test="clientId >0">
+        and sa.client_id = #{clientId}
+      </if>
+      <if test="brandId >0">
+        and p.brand_id = #{brandId}
+      </if>
+    </where>
+  </sql>
+
+</mapper>

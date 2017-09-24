@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        ">
+
+    <!--配置MapperFactoryBean-->
+    <!--多个bean元素共同的配置的抽取-->
+    <bean id="baseMapper" class="org.mybatis.spring.mapper.MapperFactoryBean" abstract="true">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="departmentMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.DepartmentMapper"/>
+    </bean>
+    <bean id="employeeMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.EmployeeMapper"/>
+    </bean>
+    <bean id="permissionMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.PermissionMapper"/>
+    </bean>
+    <bean id="roleMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.RoleMapper"/>
+    </bean>
+    <bean id="brandMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.BrandMapper"/>
+    </bean>
+    <bean id="systemMenuMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.SystemMenuMapper"/>
+    </bean>
+    <bean id="supplierMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.SupplierMapper"/>
+    </bean>
+    <bean id="productMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.ProductMapper"/>
+    </bean>
+    <bean id="orderBillMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.OrderBillMapper"/>
+    </bean>
+    <bean id="orderBillItemMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.OrderBillItemMapper"/>
+    </bean>
+    <bean id="depotMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.DepotMapper"/>
+    </bean>
+    <bean id="stockIncomeBillMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.StockIncomeBillMapper"/>
+    </bean>
+    <bean id="stockIncomeBillItemMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.StockIncomeBillItemMapper"/>
+    </bean>
+    <bean id="productStockMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.ProductStockMapper"/>
+    </bean>
+    <bean id="clientMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.ClientMapper"/>
+    </bean>
+    <bean id="stockOutcomeBillMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.StockOutcomeBillMapper"/>
+    </bean>
+    <bean id="stockOutcomeBillItemMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.StockOutcomeBillItemMapper"/>
+    </bean>
+    <bean id="chartMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.ChartMapper"/>
+    </bean>
+    <bean id="saleAccountMapper" parent="baseMapper">
+        <property name="mapperInterface" value="com._520it.wms.mapper.SaleAccountMapper"/>
+    </bean>
+</beans>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--配置延迟加载的运行参数-->
+    <settings>
+        <!--1: 开启延迟加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--2: 取消延时加载的积极性-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!--3: 设置哪些方法会触发延时加载: 默认equals,clone,hashCode,toString-->
+        <setting name="lazyLoadTriggerMethods" value="clone"/>
+    </settings>
+    <!-- 定义类型别名 : 在Spring配置文件中-->
+    <!--关联映射文件: 在Spring配置文件中-->
+
+</configuration>

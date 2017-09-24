@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.wms.mapper.StockOutcomeBillItemMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.wms.domain.StockOutcomeBillItem" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="salePrice" property="salePrice" jdbcType="DECIMAL" />
+    <result column="number" property="number" jdbcType="DECIMAL" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="bill_id" property="billId" jdbcType="BIGINT" />
+  <association property="product" javaType="Product">
+    <id column="p_id" property="id"/>
+    <result column="p_name" property="name"/>
+    <result column="b_id" property="brand.id"/>
+    <result column="b_name" property="brand.name"/>
+  </association>
+  </resultMap>
+
+  <delete id="deleteByBillId" parameterType="java.lang.Long" >
+    delete from `stockoutcomebillitem`
+    where bill_id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" parameterType="com._520it.wms.domain.StockOutcomeBillItem" useGeneratedKeys="true" keyProperty="id" >
+    insert into `stockoutcomebillitem` (salePrice, number, amount,remark, product_id, bill_id)
+    values (#{salePrice,jdbcType=DECIMAL}, #{number,jdbcType=DECIMAL}, #{amount,jdbcType=DECIMAL}, 
+      #{remark,jdbcType=VARCHAR}, #{product.id,jdbcType=BIGINT}, #{billId,jdbcType=BIGINT})
+  </insert>
+
+  <select id="selectByBillId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select item.id, item.salePrice, item.number, item.amount, item.remark, item.product_id, item.bill_id,
+          p.id p_id,p.name p_name,
+          b.id b_id,b.name b_name
+    from `stockoutcomebillitem` item
+    join product p on item.product_id = p.id
+    join brand b on p.brand_id = b.id
+    where item.bill_id = #{id,jdbcType=BIGINT}
+  </select>
+
+</mapper>

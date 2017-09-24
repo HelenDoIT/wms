@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com._520it.wms.mapper.RoleMapper">
+    <resultMap id="BaseResultMap" type="Role">
+        <id property="id" column="id"></id>
+        <result property="name" column="name"/>
+        <result property="sn" column="sn"/>
+        <collection property="permissions" column="id" ofType="Permission"
+                    select="com._520it.wms.mapper.PermissionMapper.selectByRoleId"/>
+        <collection property="menus" column="id" ofType="SystemMenu"
+                    select="com._520it.wms.mapper.SystemMenuMapper.selectByRoleId"/>
+    </resultMap>
+
+    <!--根据员工id查询对应的角色-->
+    <select id="getByEmpId" resultMap="BaseResultMap">
+       SELECT r.id,r.name,r.sn
+        FROM employee_role er JOIN role r on er.role_id = r.id
+        WHERE er.employee_id=#{eId}
+    </select>
+
+    <insert id="insertRelation">
+        INSERT role_permission (role_id,permission_id) VALUES (#{roleId},#{permId})
+    </insert>
+    <!--维护与菜单列表的关系-->
+    <insert id="insertMenuRelation">
+        INSERT role_menu (role_id,menu_id) VALUES (#{roleId},#{menuId})
+    </insert>
+
+    <delete id="deleteRelation">
+        DELETE FROM role_permission WHERE role_id = #{roleId}
+    </delete>
+    <!--删除与菜单列表的关系-->
+    <delete id="deleteMenuRelation">
+        DELETE FROM role_menu WHERE role_id = #{roleId}
+    </delete>
+
+    <!--分页查询-->
+    <select id="queryTotalCount" resultType="int">
+        select count(id) from role
+    </select>
+    <select id="queryList" resultMap="BaseResultMap">
+        SELECT id,name,sn FROM role
+        limit #{start},#{pageSize}
+    </select>
+
+    <select id="listAll" resultMap="BaseResultMap">
+        SELECT id,name,sn FROM role
+    </select>
+
+    <select id="getPermission" resultMap="BaseResultMap">
+        SELECT id,name,sn
+        FROM role WHERE id=#{roleId}
+    </select>
+    <!-- 查出角色包含的权限名称-->
+    <select id="getRole" resultMap="BaseResultMap">
+        SELECT id,name,sn FROM role WHERE id=#{roleId}
+    </select>
+    <!--<select id="getRole" resultMap="BaseResultMap">
+        SELECT r.id,r.name,r.sn,p.id,p.name,p.expression
+        from permission p
+        JOIN role_permission rp on p.id=rp.permission_id
+        JOIN  role r on r.id=rp.role_id
+        where rp.role_id = #{id}
+    </select>-->
+
+    <!--DML操作-->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" keyColumn="id" >
+        INSERT role (name,sn)
+        VALUES (#{name},#{sn})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM role WHERE id = #{id}
+    </delete>
+    <!--批量删除角色-->
+    <delete id="batchDelete">
+        DELETE FROM role WHERE id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <!--批量删除中间关系-->
+    <delete id="batchDeleteRelation">
+        DELETE FROM role_permission WHERE role_id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="update">
+        UPDATE role
+        set name =#{name},
+            sn=#{sn}
+        where id=#{id}
+    </update>
+
+</mapper>

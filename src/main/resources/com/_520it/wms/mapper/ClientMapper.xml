@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.wms.mapper.ClientMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.wms.domain.Client" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="sn" property="sn" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from `client`
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com._520it.wms.domain.Client" useGeneratedKeys="true" keyProperty="id" >
+    insert into `client` (name, sn, phone)
+    values (#{name,jdbcType=VARCHAR}, #{sn,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.wms.domain.Client" >
+    update `client`
+    set name = #{name,jdbcType=VARCHAR},
+      sn = #{sn,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, name, sn, phone
+    from `client`
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="queryForCount" resultType="int">
+    select COUNT(id) from client
+  </select>
+  <select id="queryResult" resultMap="BaseResultMap">
+    SELECT id, name, sn, phone FROM client
+    <if test="pageSize > 0">
+      limit #{start},#{pageSize}
+    </if>
+  </select>
+</mapper>

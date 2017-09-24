@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com._520it.wms.mapper.PermissionMapper">
+
+    <!--根据role id查询所有权限表达式-->
+    <select id="selectByRoleId" resultType="Permission">
+        SELECT rp.role_id, p.id,p.name, p.expression
+        FROM permission p JOIN role_permission rp ON p.id = rp.permission_id
+        WHERE rp.role_id=#{roleId}
+    </select>
+
+    <select id="selectByEmpId" resultType="string">
+        SELECT expression
+        FROM permission p
+        JOIN role_permission rp on p.id=rp.permission_id
+        JOIN employee_role er on er.role_id=rp.role_id
+        where er.employee_id=#{EmpId}
+    </select>
+
+    <select id="listExpressions" resultType="String">
+        SELECT expression FROM permission
+    </select>
+
+    <!--分页查询-->
+    <select id="queryTotalCount" resultType="int">
+        select count(id) from permission
+    </select>
+    <select id="queryList" resultType="Permission">
+        SELECT id,name,expression FROM permission
+        limit #{start},#{pageSize}
+    </select>
+
+    <select id="listAll" resultType="Permission">
+        SELECT id,name,expression FROM permission
+    </select>
+
+    <delete id="delete">
+        DELETE FROM permission WHERE id = #{id}
+    </delete>
+
+    <insert id="save">
+        INSERT permission (name,expression) VALUES (#{name},#{expression})
+    </insert>
+
+</mapper>

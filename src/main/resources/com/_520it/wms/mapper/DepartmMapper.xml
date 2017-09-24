@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com._520it.wms.mapper.DepartmentMapper">
+
+    <!--分页查询-->
+    <select id="queryTotalCount" resultType="int">
+        select count(id) from department
+    </select>
+    <select id="queryList" resultType="Department">
+        SELECT id,name,sn FROM department
+        limit #{start},#{pageSize}
+    </select>
+
+    <select id="listAll" resultType="Department">
+        SELECT id,name,sn FROM department
+    </select>
+
+    <select id="get" resultType="Department">
+        SELECT id,name,sn
+        FROM department WHERE id=#{id}
+    </select>
+
+    <!--DML操作-->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" keyColumn="id" >
+        INSERT department (name,sn)
+        VALUES (#{name},#{sn})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM department WHERE id = #{id}
+    </delete>
+
+    <update id="update">
+        UPDATE department
+        set name =#{name},
+            sn=#{sn}
+        where id=#{id}
+    </update>
+
+</mapper>

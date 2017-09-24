@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.wms.mapper.OrderBillMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.wms.domain.OrderBill" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="sn" property="sn" jdbcType="VARCHAR" />
+    <result column="vdate" property="vdate" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="totalAmount" property="totalAmount" jdbcType="DECIMAL" />
+    <result column="totalNumber" property="totalNumber" jdbcType="DECIMAL" />
+    <result column="auditTime" property="auditTime" jdbcType="TIMESTAMP" />
+    <result column="inputTime" property="inputTime" jdbcType="TIMESTAMP" />
+    <association property="inputUser" javaType="Employee" columnPrefix="iu_"
+                 resultMap="com._520it.wms.mapper.EmployeeMapper.SimpleResultMap"/>
+    <association property="auditor" javaType="Employee" columnPrefix="au_"
+                 resultMap="com._520it.wms.mapper.EmployeeMapper.SimpleResultMap"/>
+    <association property="supplier" javaType="Supplier" columnPrefix="s_"
+                 resultMap="com._520it.wms.mapper.SupplierMapper.SimpleResultMap"/>
+    <collection property="items" ofType="OrderBillItem" column="id"
+                select="com._520it.wms.mapper.OrderBillItemMapper.selectByBillId"/>
+
+  </resultMap>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from `orderbill`
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com._520it.wms.domain.OrderBill" useGeneratedKeys="true" keyProperty="id" >
+    insert into `orderbill` (sn, vdate, status, 
+      totalAmount, totalNumber, auditTime, 
+      inputTime, inputUser_id, auditor_id, 
+      supplier_id)
+    values (#{sn,jdbcType=VARCHAR}, #{vdate,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER}, 
+      #{totalAmount,jdbcType=DECIMAL}, #{totalNumber,jdbcType=DECIMAL}, #{auditTime,jdbcType=TIMESTAMP},
+      #{inputTime,jdbcType=TIMESTAMP}, #{inputUser.id,jdbcType=BIGINT}, #{auditor.id,jdbcType=BIGINT},
+      #{supplier.id,jdbcType=BIGINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.wms.domain.OrderBill" >
+    update `orderbill`
+    set sn = #{sn,jdbcType=VARCHAR},
+      vdate = #{vdate,jdbcType=TIMESTAMP},
+      totalAmount = #{totalAmount,jdbcType=DECIMAL},
+      totalNumber = #{totalNumber,jdbcType=DECIMAL},
+      supplier_id = #{supplier.id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select bill.id, bill.sn, bill.vdate, bill.status, bill.totalAmount, bill.totalNumber, bill.auditTime, bill.inputTime, bill.inputUser_id,
+    bill.auditor_id, bill.supplier_id,s.id s_id,s.name s_name
+    from `orderbill` bill JOIN supplier s on bill.supplier_id=s.id
+    where bill.id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, sn, vdate, status, totalAmount, totalNumber, auditTime, inputTime, inputUser_id, 
+    auditor_id, supplier_id
+    from `orderbill`
+  </select>
+
+  <sql id="base_where">
+    <where>
+      <if test="beginDate != null">
+        bill.vdate >=#{beginDate}
+      </if>
+      <if test="endDate != null">
+        And  bill.vdate &lt;=#{endDate}
+      </if>
+      <if test="supplierId > -1">
+        AND bill.supplier_id =#{supplierId}
+      </if>
+      <if test="status > -1">
+        AND bill.status =#{status}
+      </if>
+    </where>
+  </sql>
+  <sql id="base_from">
+    orderbill bill
+    JOIN  employee iu on bill.inputUser_id = iu.id
+    left JOIN  employee au on bill.auditor_id = au.id
+    JOIN  supplier s on bill.supplier_id=s.id
+  </sql>
+  <sql id="base_select">
+    bill.id, bill.sn, bill.vdate, bill.status, bill.totalAmount, bill.totalNumber, bill.auditTime,bill.inputTime, bill.inputUser_id,
+    iu.id iu_id,iu.name iu_name,
+    au.id au_id,au.name au_name,
+    s.id s_id,s.name s_name
+  </sql>
+  <select id="queryForCount" resultType="int">
+    select COUNT(bill.id)
+    from <include refid="base_from"/>
+    <include refid="base_where"/>
+  </select>
+  <select id="queryForList" resultMap="BaseResultMap">
+    SELECT <include refid="base_select"/>
+    FROM <include refid="base_from"/>
+    <include refid="base_where"/>
+    limit #{start},#{pageSize}
+  </select>
+
+   <update id="audit" >
+     UPDATE  orderbill
+     SET  status=#{status},
+      auditor_id=#{auditor.id},
+      auditTime=#{auditTime}
+      where id =#{id}
+   </update>
+</mapper>
